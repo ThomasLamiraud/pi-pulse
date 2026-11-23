@@ -1,0 +1,229 @@
+/* Same palette and surfaces as PiPulse, so the gate and its apps feel like one product. */
+:root {
+  color-scheme: dark;
+  --background: #0c0d12;
+  --surface: #14161f;
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #f4f5f7;
+  --muted: #8a90a2;
+  --coral: #ff725e;
+  --violet: #9b8afb;
+  --cyan: #50c9ff;
+  --lime: #c8f465;
+  --amber: #ffb15e;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--background); }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 7% 0%, rgba(155, 138, 251, 0.11), transparent 28rem),
+    radial-gradient(circle at 95% 10%, rgba(80, 201, 255, 0.08), transparent 24rem),
+    var(--background);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-feature-settings: "tnum";
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, p { margin: 0; }
+
+.shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.75rem 0 2rem;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: grid;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid rgba(200, 244, 101, 0.25);
+  border-radius: 1rem;
+  background: rgba(200, 244, 101, 0.08);
+  color: var(--lime);
+  font-size: 1.6rem;
+}
+
+h1 {
+  overflow: hidden;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  letter-spacing: -0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eyebrow {
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.status i,
+.app-status {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 0 0.25rem rgba(138, 144, 162, 0.12);
+}
+
+.status--up i,
+.app--up .app-status {
+  background: var(--lime);
+  box-shadow: 0 0 0 0.25rem rgba(200, 244, 101, 0.12), 0 0 1rem rgba(200, 244, 101, 0.4);
+}
+
+.status--down i,
+.app--down .app-status {
+  background: var(--coral);
+  box-shadow: 0 0 0 0.25rem rgba(255, 114, 94, 0.14);
+}
+
+.app {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.018), transparent 40%), var(--surface);
+  box-shadow: 0 1.2rem 4rem rgba(0, 0, 0, 0.12);
+}
+
+.app::after {
+  position: absolute;
+  right: -2rem;
+  bottom: -3rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  content: "";
+  filter: blur(3.5rem);
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+.app--coral { --accent: var(--coral); }
+.app--violet { --accent: var(--violet); }
+.app--amber { --accent: var(--amber); }
+.app--cyan { --accent: var(--cyan); }
+.app--lime { --accent: var(--lime); }
+
+.apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.8rem;
+}
+
+.app {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 6.5rem;
+  padding: 1.1rem 1.2rem;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.app:hover,
+.app:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.app-icon {
+  display: grid;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+  font-size: 1.5rem;
+}
+
+.app-copy {
+  display: grid;
+  flex: 1;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.app-copy strong {
+  overflow: hidden;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-copy small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.app-status {
+  flex: none;
+  align-self: flex-start;
+  margin-top: 0.35rem;
+}
+
+.app--down .app-copy strong { color: var(--muted); }
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 2rem;
+  border: 1px dashed var(--line);
+  border-radius: 1.1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+footer {
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .shell { padding-top: 1.5rem; }
+  .site-header { align-items: flex-start; flex-direction: column; gap: 1rem; }
+}

@@ -1,0 +1,41 @@
+# Home gate configuration. deploy.sh installs this file as
+# /etc/gate/config.yaml; edit it here and redeploy to change the apps.
+
+# Header title. Defaults to the Pi's hostname.
+# title: Home
+
+# Port the gate listens on. 80 lets you open http://homemonitor.local
+# without a port.
+port: 80
+
+# How often apps are checked.
+interval: 10s
+
+# One card per app.
+#   name    shown on the card
+#   icon    a Tabler icon name: https://tabler.io/icons
+#   port    the app's port
+#   host    optional, for an app on another machine; use its IP address
+#   path    optional, added to the link (for example /admin)
+#   health  optional, path checked to tell whether the app is up
+apps:
+  - name: HomeMonitor
+    icon: temperature
+    port: 8000
+
+  - name: PiPulse
+    icon: activity
+    port: 3000
+    health: /up
+
+  - name: Pi-hole PiPulse
+    icon: activity
+    host: 192.168.1.25
+    port: 3000
+    health: /up
+
+  - name: Pi-hole
+    icon: shield-check
+    host: 192.168.1.25
+    port: 80
+    path: /admin

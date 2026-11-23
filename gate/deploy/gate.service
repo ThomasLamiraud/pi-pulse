@@ -1,0 +1,36 @@
+[Unit]
+Description=Home gate: launcher page for the apps on this Pi
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gate -config /etc/gate/config.yaml
+Restart=on-failure
+RestartSec=5
+
+# Runs as a throwaway system user. Port 80 needs this one capability,
+# not root.
+DynamicUser=yes
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+# Stay out of the way of the apps it lists.
+Nice=10
+MemoryMax=32M
+Environment=GOMEMLIMIT=24MiB
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

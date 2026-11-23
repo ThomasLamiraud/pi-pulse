@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0c0d12">
+    <meta name="application-name" content="Home">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/static/icon.svg">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="/static/gate.css">
+    <script src="/static/gate.js" defer></script>
+  </head>
+
+  <body>
+    <main class="shell">
+      <header class="site-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"><i class="ti ti-home"></i></span>
+          <div>
+            <p class="eyebrow" id="host-details">Raspberry Pi</p>
+            <h1 id="title">Home</h1>
+          </div>
+        </div>
+        <span class="status status--unknown" id="overall"><i aria-hidden="true"></i><span>Checking apps…</span></span>
+      </header>
+
+      <section class="apps" id="apps" aria-label="Apps"></section>
+
+      <footer id="footer">Checking…</footer>
+    </main>
+  </body>
+</html>
