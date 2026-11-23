@@ -1,0 +1,39 @@
+[Unit]
+Description=PiPulse Raspberry Pi monitoring dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pipulse
+Restart=on-failure
+RestartSec=5
+
+# Runs as a throwaway system user that owns only /var/lib/pipulse.
+DynamicUser=yes
+StateDirectory=pipulse
+Environment=DATABASE_PATH=/var/lib/pipulse/pipulse.db
+# Optional overrides: METRIC_INTERVAL, PORT, LISTEN_ADDRESS, WATCH_DATABASES.
+EnvironmentFile=-/etc/default/pipulse
+
+# Stay out of Pi-hole's way: low CPU priority and a hard memory cap.
+Nice=10
+MemoryMax=64M
+Environment=GOMEMLIMIT=48MiB
+
+# Read-only access to the system; reading /proc and /sys is all it needs.
+NoNewPrivileges=yes
+ProtectSystem=strict
+# Read-only, so watched databases under /home can be measured.
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
