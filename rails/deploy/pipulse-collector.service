@@ -1,0 +1,27 @@
+[Unit]
+Description=PiPulse system metrics collector
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/pi-pulse/rails
+EnvironmentFile=/etc/pipulse.env
+Environment=PATH=/home/pi/.rbenv/shims:/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/pi/pi-pulse/rails/bin/collector
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadOnlyPaths=/proc
+ReadWritePaths=/home/pi/pi-pulse/rails/log /home/pi/pi-pulse/rails/storage /home/pi/pi-pulse/rails/tmp
+
+[Install]
+WantedBy=multi-user.target

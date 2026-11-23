@@ -1,0 +1,42 @@
+services:
+  web:
+    image: pi-pulse:latest
+    restart: unless-stopped
+    network_mode: host
+    security_opt:
+      - seccomp=unconfined
+    env_file: .env.production
+    volumes:
+      - ./storage:/rails/storage
+    command: bin/rails server -b 0.0.0.0
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5m
+
+  collector:
+    image: pi-pulse:latest
+    restart: unless-stopped
+    network_mode: host
+    security_opt:
+      - seccomp=unconfined
+    env_file: .env.production
+    environment:
+      PROC_ROOT: /host/proc
+      FILESYSTEM_ROOT: /host
+      CPU_FREQUENCY_PATH: /host/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+      CPU_MAX_FREQUENCY_PATH: /host/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
+      THERMAL_PATH: /host/sys/class/thermal/thermal_zone0/temp
+      THROTTLING_PATH: /host/sys/devices/platform/soc/soc:firmware/get_throttled
+      UTMP_PATH: /host/run/utmp
+    volumes:
+      - ./storage:/rails/storage
+      - /proc:/host/proc:ro
+      - /:/host:ro
+      - /run/utmp:/host/run/utmp:ro
+    command: bin/collector
+    depends_on:
+      web:
+        condition: service_healthy

@@ -1,0 +1,96 @@
+<% content_for :title, "PiPulse · Raspberry Pi monitoring" %>
+
+<%= turbo_stream_from "metrics" %>
+
+<main class="dashboard-shell">
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img">
+          <path d="M7 25h9l4-9 7 17 5-12 3 4h6"/>
+        </svg>
+      </span>
+      <div>
+        <p class="eyebrow">Raspberry Pi telemetry</p>
+        <h1>PiPulse</h1>
+      </div>
+    </div>
+    <p class="header-copy">A live view of the little computer doing big work.</p>
+  </header>
+
+  <%= render "metrics", sample: @sample %>
+
+  <section
+    class="chart-grid"
+    data-controller="dashboard-chart"
+    data-dashboard-chart-history-value="<%= @history.to_json %>"
+  >
+    <article class="panel chart-panel chart-panel--wide">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Last 24 hours</p>
+          <h2>CPU, memory &amp; swap</h2>
+        </div>
+        <span class="chart-key">
+          <i class="key-cpu"></i>CPU
+          <i class="key-memory"></i>Memory
+          <i class="key-swap"></i>Swap
+        </span>
+      </div>
+      <div class="chart-wrap">
+        <canvas data-dashboard-chart-target="resources"></canvas>
+      </div>
+    </article>
+
+    <article class="panel chart-panel chart-panel--wide">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">System pressure</p>
+          <h2>Load average</h2>
+        </div>
+        <span class="chart-key">
+          <i class="key-load-one"></i>1 min
+          <i class="key-load-five"></i>5 min
+        </span>
+      </div>
+      <div class="chart-wrap">
+        <canvas data-dashboard-chart-target="load"></canvas>
+      </div>
+    </article>
+
+    <article class="panel chart-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Throughput</p>
+          <h2>Network traffic</h2>
+        </div>
+        <span class="chart-key">
+          <i class="key-network-received"></i>Received
+          <i class="key-network-sent"></i>Sent
+        </span>
+      </div>
+      <div class="chart-wrap">
+        <canvas data-dashboard-chart-target="network"></canvas>
+      </div>
+    </article>
+
+    <article class="panel chart-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Thermals</p>
+          <h2>Chip temperature</h2>
+        </div>
+        <span class="chart-key"><i class="key-temperature"></i>Temperature</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas data-dashboard-chart-target="temperature"></canvas>
+      </div>
+    </article>
+
+    <div id="live_samples" class="live-samples" data-dashboard-chart-target="samples" aria-hidden="true"></div>
+  </section>
+
+  <footer>
+    PiPulse keeps raw samples for 24 hours · Refresh interval <%= ENV.fetch("METRIC_INTERVAL", 15) %> seconds
+  </footer>
+</main>

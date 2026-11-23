@@ -1,0 +1,17 @@
+/.bundle
+/.env
+/config/master.key
+/log/*
+/public/assets
+/storage/*
+/tmp/*
+
+!/log/.keep
+!/storage/.keep
+!/tmp/.keep
+!/tmp/pids/
+!/tmp/pids/.keep
+
+/.DS_Store
+/.idea
+/.vscode

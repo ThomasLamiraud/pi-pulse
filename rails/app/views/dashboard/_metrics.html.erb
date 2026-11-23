@@ -1,0 +1,206 @@
+<section
+  id="dashboard_metrics"
+  data-controller="freshness"
+  <% if sample %>data-freshness-sampled-at-value="<%= sample.sampled_at.iso8601 %>"<% end %>
+  data-freshness-error-value="<%= sample&.status == "error" %>"
+  data-freshness-threshold-value="<%= MetricSample.freshness_threshold %>"
+>
+  <% state_label, state_class = collector_state(sample) %>
+  <% hardware_label, hardware_class = hardware_health(sample) %>
+
+  <div class="status-row">
+    <span class="status status--<%= state_class %>" data-freshness-target="status">
+      <i aria-hidden="true"></i>
+      <span data-freshness-target="label"><%= state_label %></span>
+    </span>
+    <% if sample %>
+      <span class="sample-time" data-freshness-target="time">
+        Last sample <%= time_ago_in_words(sample.sampled_at) %> ago
+      </span>
+    <% else %>
+      <span class="sample-time">Start <code>bin/collector</code> to begin sampling.</span>
+    <% end %>
+  </div>
+
+  <% if sample&.status == "error" %>
+    <div class="collector-alert" role="alert">
+      <strong>The last collection failed.</strong>
+      <span><%= sample.error_message %></span>
+    </div>
+  <% end %>
+
+  <div class="metric-grid">
+    <article class="metric-card metric-card--coral">
+      <div class="metric-heading">
+        <span>CPU</span>
+        <span class="metric-icon" aria-hidden="true">⌁</span>
+      </div>
+      <strong><%= metric_percentage(sample&.cpu_usage) %></strong>
+      <div class="meter"><i style="--value: <%= sample&.cpu_usage.to_f %>%"></i></div>
+      <small>
+        <%= metric_frequency(sample&.cpu_frequency_hz) %>
+        <% if sample&.cpu_max_frequency_hz %>
+          / <%= metric_frequency(sample.cpu_max_frequency_hz) %> max
+        <% end %>
+      </small>
+    </article>
+
+    <article class="metric-card metric-card--violet">
+      <div class="metric-heading">
+        <span>Memory</span>
+        <span class="metric-icon" aria-hidden="true">◫</span>
+      </div>
+      <strong><%= metric_percentage(sample&.memory_usage) %></strong>
+      <div class="meter"><i style="--value: <%= sample&.memory_usage.to_f %>%"></i></div>
+      <div class="memory-details">
+        <small>
+          RAM <%= metric_bytes(sample&.memory_used_bytes) %> /
+          <%= metric_bytes(sample&.memory_total_bytes) %>
+        </small>
+        <% if sample&.swap_total_bytes.to_i.positive? %>
+          <small>
+            Swap <%= metric_bytes(sample.swap_used_bytes) %> /
+            <%= metric_bytes(sample.swap_total_bytes) %> · <%= metric_percentage(sample.swap_usage) %>
+          </small>
+        <% end %>
+      </div>
+    </article>
+
+    <article class="metric-card metric-card--amber">
+      <div class="metric-heading">
+        <span>Temperature</span>
+        <span class="metric-icon" aria-hidden="true">♨</span>
+      </div>
+      <strong><%= metric_temperature(sample&.temperature_celsius) %></strong>
+      <div class="meter"><i style="--value: <%= sample&.temperature_celsius.to_f / 85 * 100 %>%"></i></div>
+      <small class="hardware-health hardware-health--<%= hardware_class %>"><%= hardware_label %></small>
+    </article>
+
+    <article class="metric-card metric-card--cyan">
+      <div class="metric-heading">
+        <span>Network</span>
+        <span class="metric-icon" aria-hidden="true">↕</span>
+      </div>
+      <div class="split-value">
+        <span><b>↓</b> <%= metric_rate(sample&.network_received_bytes_per_second) %></span>
+        <span><b>↑</b> <%= metric_rate(sample&.network_transmitted_bytes_per_second) %></span>
+      </div>
+      <small>All physical interfaces</small>
+    </article>
+
+    <article class="metric-card metric-card--lime">
+      <div class="metric-heading">
+        <span>Load average</span>
+        <span class="metric-icon" aria-hidden="true">≈</span>
+      </div>
+      <strong><%= metric_number(sample&.load_one) %></strong>
+      <div class="load-values">
+        <span>5m <b><%= metric_number(sample&.load_five) %></b></span>
+        <span>15m <b><%= metric_number(sample&.load_fifteen) %></b></span>
+      </div>
+      <small>1 minute average</small>
+    </article>
+  </div>
+
+  <div class="detail-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Storage</p>
+          <h2>Mounted disks</h2>
+        </div>
+        <span class="count-badge"><%= sample&.filesystems&.size.to_i %></span>
+      </div>
+
+      <div class="disk-list">
+        <% if sample&.filesystems.present? %>
+          <% sample.filesystems.each do |filesystem| %>
+            <div class="disk">
+              <div class="disk-copy">
+                <strong><%= filesystem["mountpoint"] %></strong>
+                <span><%= filesystem["source"] %> · <%= filesystem["type"] %></span>
+              </div>
+              <div class="disk-usage">
+                <span><%= metric_percentage(filesystem["usage"]) %></span>
+                <small><%= metric_bytes(filesystem["used_bytes"]) %> / <%= metric_bytes(filesystem["total_bytes"]) %></small>
+              </div>
+              <div class="meter"><i style="--value: <%= filesystem["usage"].to_f %>%"></i></div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="empty-state">Filesystem data will appear after the first successful sample.</p>
+        <% end %>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Interfaces</p>
+          <h2>Network activity</h2>
+        </div>
+      </div>
+
+      <div class="interface-list">
+        <% if sample&.network_interfaces.present? %>
+          <% sample.network_interfaces.each do |name, rates| %>
+            <div class="interface">
+              <strong><%= name %></strong>
+              <span>↓ <%= metric_rate(rates["received_bytes_per_second"]) %></span>
+              <span>↑ <%= metric_rate(rates["transmitted_bytes_per_second"]) %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="empty-state">No active physical network interface was found.</p>
+        <% end %>
+      </div>
+
+    </article>
+  </div>
+
+  <article class="panel process-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Processes</p>
+        <h2>Top resource consumers</h2>
+      </div>
+      <span class="count-badge"><%= pluralize(sample&.logged_in_users.to_i, "user") %> connected</span>
+    </div>
+
+    <div class="process-columns">
+      <div>
+        <h3>CPU</h3>
+        <div class="process-list">
+          <% if sample&.top_cpu_processes.present? %>
+            <% sample.top_cpu_processes.each do |process| %>
+              <div class="process">
+                <span class="process-name"><%= process["name"] %></span>
+                <small>PID <%= process["pid"] %></small>
+                <strong><%= metric_percentage(process["cpu_usage"]) %></strong>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="empty-state">CPU rankings need two samples.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Memory</h3>
+        <div class="process-list">
+          <% if sample&.top_memory_processes.present? %>
+            <% sample.top_memory_processes.each do |process| %>
+              <div class="process">
+                <span class="process-name"><%= process["name"] %></span>
+                <small>PID <%= process["pid"] %></small>
+                <strong><%= metric_bytes(process["memory_bytes"]) %></strong>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="empty-state">Process memory data is not available yet.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>

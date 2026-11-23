@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require_relative "../config/environment"
+
+interval = MetricSample.collection_interval
+running = true
+
+Signal.trap("TERM") { running = false }
+Signal.trap("INT") { running = false }
+
+lock = Rails.root.join("tmp/collector.lock").open("w")
+unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+  warn "Another PiPulse collector is already running."
+  exit 1
+end
+
+collector = SystemMetrics::Collector.new
+Rails.logger.info("PiPulse collector started (#{interval}s interval)")
+
+while running
+  started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+  begin
+    Rails.application.executor.wrap { collector.sample! }
+  rescue StandardError => error
+    Rails.logger.error("Collector loop failed: #{error.class}: #{error.message}")
+  ensure
+    ActiveRecord::Base.connection_handler.clear_active_connections!
+  end
+
+  elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at
+  sleep([ interval - elapsed, 0.1 ].max) if running
+end
+
+Rails.logger.info("PiPulse collector stopped")

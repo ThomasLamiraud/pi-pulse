@@ -1,0 +1,12 @@
+.git
+.cursor
+.ruby-lsp
+.bundle
+.env*
+config/master.key
+log/*
+storage/*
+tmp/*
+public/assets
+temp-monitor.tar
+pi-pulse.tar
