@@ -1,0 +1,10 @@
+.DS_Store
+
+# Go
+/go/dist/
+/go/*.db
+/go/*.db-shm
+/go/*.db-wal
+
+# Gate
+/gate/dist/
